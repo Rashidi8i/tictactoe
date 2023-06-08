@@ -116,7 +116,7 @@ class _LoginViewState extends State<LoginView> {
                                   validator: (value) {
                                     if (value!.isEmpty) {
                                       //Utils.snackBar('Email', 'Enter email');
-                                      return 'Enter Password';
+                                      return 'Enter Password!';
                                     }
                                   },
                                   decoration: InputDecoration(
