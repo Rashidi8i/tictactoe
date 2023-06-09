@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tictactoe/controllers/gameviewController/gameviewController.dart';
+import 'package:tictactoe/controllers/roundrobinController/roundrobinController.dart';
 import 'package:tictactoe/controllers/tournamentController/tournamentController.dart';
 import 'package:tictactoe/res/colors/app_color.dart';
 import 'package:tictactoe/res/constants/constants.dart';
@@ -33,7 +34,9 @@ class GameView extends StatefulWidget {
 class _GameViewState extends State<GameView> {
   final gameViewController = Get.put(GameViewController());
   final tournamentController = Get.put(TournamentMakerController());
+  final robinController = Get.put(RoundRobinController());
   String winner = '';
+  String winnerScore = '';
   DBHelper dbHelper = DBHelper();
 
   @override
@@ -345,37 +348,7 @@ class _GameViewState extends State<GameView> {
                                       )
                                     : InkWell(
                                         onTap: () {
-                                          tournamentController
-                                              .playedMatches.value++;
-                                          if (gameViewController.winner.value ==
-                                              'Player A winner') {
-                                            winner = widget.playerA;
-                                            tournamentController.winnersList
-                                                .add(widget.playerA);
-                                          } else {
-                                            winner = widget.playerB;
-                                            tournamentController.winnersList
-                                                .add(widget.playerB);
-                                          }
-
-                                          dbHelper.updateMatch(
-                                              int.parse(widget.matchid),
-                                              winner,
-                                              'true');
-                                          gameViewController.restart_game();
-                                          if (tournamentController
-                                              .isfinal.value) {
-                                            tournamentController
-                                                .finalDone.value = true;
-                                          }
-                                          Get.off(
-                                              () => TournamentMatches(
-                                                  t_id: tournamentController
-                                                      .this_t_id),
-                                              transition: Transition
-                                                  .rightToLeftWithFade,
-                                              duration: const Duration(
-                                                  milliseconds: 450));
+                                          nextMatch();
                                         },
                                         child: Align(
                                           alignment: Alignment.bottomRight,
@@ -477,10 +450,22 @@ class _GameViewState extends State<GameView> {
                                         )),
                                     InkWell(
                                         onTap: () {
+                                          if (widget.isTournament) {
+                                            nextMatch();
+                                          } else {
+                                            Get.off(() => const GameMode(),
+                                                transition: Transition
+                                                    .rightToLeftWithFade,
+                                                duration: const Duration(
+                                                    milliseconds: 450));
+                                          }
+
                                           gameViewController.restart_game();
                                         },
                                         child: Image.asset(
-                                          'Assets/icons/home.png',
+                                          widget.isTournament
+                                              ? 'Assets/icons/next.png'
+                                              : 'Assets/icons/home.png',
                                           height: 60,
                                         ))
                                   ],
@@ -496,6 +481,50 @@ class _GameViewState extends State<GameView> {
         ),
       ),
     );
+  }
+
+  void nextMatch() {
+    if (tournamentController.selectedType.value == 'Elimination') {
+      tournamentController.playedMatches.value++;
+      if (gameViewController.winner.value == 'Player A winner') {
+        winner = widget.playerA;
+        winnerScore = gameViewController.player_A_Score.value.toString();
+        tournamentController.winnersList.add(widget.playerA);
+      } else {
+        winner = widget.playerB;
+        winnerScore = gameViewController.player_A_Score.value.toString();
+        tournamentController.winnersList.add(widget.playerB);
+      }
+
+      dbHelper.updateMatch(int.parse(widget.matchid), winner, 'true');
+      gameViewController.restart_game();
+      if (tournamentController.isfinal.value) {
+        tournamentController.finalDone.value = true;
+      }
+      Get.off(() => TournamentMatches(t_id: tournamentController.this_t_id),
+          transition: Transition.rightToLeftWithFade,
+          duration: const Duration(milliseconds: 450));
+    } else {
+      robinController.playedMatches.value++;
+      if (gameViewController.winner.value == 'Player A winner') {
+        winner = widget.playerA;
+
+        robinController.winnersList.add(widget.playerA);
+      } else {
+        winner = widget.playerB;
+        robinController.winnersList.add(widget.playerB);
+      }
+
+      dbHelper.updateRobinMatch(
+          int.parse(widget.matchid), winner, winnerScore, 'true');
+      gameViewController.restart_game();
+      if (robinController.isfinal.value) {
+        robinController.finalDone.value = true;
+      }
+      Get.off(() => TournamentMatches(t_id: robinController.this_t_id),
+          transition: Transition.rightToLeftWithFade,
+          duration: const Duration(milliseconds: 450));
+    }
   }
 
   Container GameBox(String box_name, Color color) {

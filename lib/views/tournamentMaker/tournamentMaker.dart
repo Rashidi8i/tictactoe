@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tictactoe/controllers/roundrobinController/roundrobinController.dart';
 import 'package:tictactoe/controllers/tournamentController/tournamentController.dart';
 import 'package:tictactoe/res/colors/app_color.dart';
 import 'package:tictactoe/res/components/round_button.dart';
@@ -18,6 +19,7 @@ class TournamentMaker extends StatefulWidget {
 
 class _TournamentMakerState extends State<TournamentMaker> {
   final tournamentController = Get.put(TournamentMakerController());
+  final robinController = Get.put(RoundRobinController());
   final nameController = TextEditingController();
   List<TextEditingController> textFeildList = [];
 
@@ -40,6 +42,12 @@ class _TournamentMakerState extends State<TournamentMaker> {
   void savePlayersName() {
     for (int i = 0; i < textFeildList.length; i++) {
       tournamentController.playersName.add(textFeildList[i].text);
+    }
+  }
+
+  void saveRobinPlayersName() {
+    for (int i = 0; i < textFeildList.length; i++) {
+      robinController.playersName.add(textFeildList[i].text);
     }
   }
 
@@ -81,35 +89,61 @@ class _TournamentMakerState extends State<TournamentMaker> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Obx(() => RoundButton(
-                        loading: tournamentController.loading.value,
-                        title: 'Generate Tournament',
-                        onPress: () {
-                          tournamentController.playedMatches.value = 0;
-                          tournamentController.loading.value = true;
-                          // tournamentController.deletematch();
+                  child: Obx(() => tournamentController.selectedType.value ==
+                          'Elimination'
+                      ? RoundButton(
+                          loading: tournamentController.loading.value,
+                          title: 'Generate e Tournament',
+                          onPress: () {
+                            tournamentController.playedMatches.value = 0;
+                            tournamentController.loading.value = true;
+                            // tournamentController.deletematch();
 
-                          if (allFieldsValid()) {
-                            tournamentController.generateTournament.value =
-                                true;
-                            savePlayersName();
-                            tournamentController.eliminationTournament(
-                                tournamentController.playersName);
-                            if (kDebugMode) {
-                              print(tournamentController.eliminationTournament(
-                                  tournamentController.playersName));
+                            if (allFieldsValid()) {
+                              tournamentController.generateTournament.value =
+                                  true;
+                              savePlayersName();
+                              tournamentController.eliminationTournament(
+                                  tournamentController.playersName);
+                              if (kDebugMode) {
+                                print(
+                                    tournamentController.eliminationTournament(
+                                        tournamentController.playersName));
+                              }
+
+                              //insert tournment
+                              tournamentController.insertournmentData();
+                              tournamentController.loading.value = false;
+                            } else {
+                              Utils.toastMessage('All names are required*');
+                              tournamentController.loading.value = false;
                             }
+                          },
+                          width: double.infinity,
+                        )
+                      : RoundButton(
+                          loading: tournamentController.loading.value,
+                          title: 'Generate r Tournament',
+                          onPress: () {
+                            robinController.playedMatches.value = 0;
+                            robinController.loading.value = true;
 
-                            //insert tournment
-                            tournamentController.insertournmentData();
-                            tournamentController.loading.value = false;
-                          } else {
-                            Utils.toastMessage('All names are required*');
-                            tournamentController.loading.value = false;
-                          }
-                        },
-                        width: double.infinity,
-                      )),
+                            if (allFieldsValid()) {
+                              robinController.generateTournament.value = true;
+                              saveRobinPlayersName();
+                              robinController
+                                  .robinTournment(robinController.playersName);
+
+                              //insert tournment
+                              robinController.insertournmentData();
+                              robinController.loading.value = false;
+                            } else {
+                              Utils.toastMessage('All names are required*');
+                              robinController.loading.value = false;
+                            }
+                          },
+                          width: double.infinity,
+                        )),
                 )
               ],
             ),

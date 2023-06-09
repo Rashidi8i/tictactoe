@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:tictactoe/models/robintournmentMatch.dart';
 import 'package:tictactoe/models/tournmentModel.dart';
 import 'package:tictactoe/models/tournmentmatchModel.dart';
 import 'dart:io' as io;
@@ -38,6 +39,9 @@ class DBHelper {
     await db.execute(
       "CREATE TABLE tournmentMatch (m_id INTEGER PRIMARY KEY AUTOINCREMENT,playerList TEXT NOT NULL, matchPlayed TEXT NOT NULL, tournment_id INTEGER NOT NULL, winner TEXT NOT NULL)",
     );
+    await db.execute(
+      "CREATE TABLE robintournmentMatch (m_id INTEGER PRIMARY KEY AUTOINCREMENT,playerList TEXT NOT NULL, matchPlayed TEXT NOT NULL, tournment_id INTEGER NOT NULL, winner TEXT NOT NULL,winnerScore TEXT NOT NULL)",
+    );
   }
 
   Future<TournmentModel> insert_tournment(TournmentModel tournmentModel) async {
@@ -54,6 +58,14 @@ class DBHelper {
     var dbClient = await db;
     await dbClient!.insert('tournmentMatch', tournmentMatchModel.toMap());
     return tournmentMatchModel;
+  }
+
+  Future<RobinTournmentMatchModel> insert_robin_tournment_match(
+      RobinTournmentMatchModel robintournmentMatchModel) async {
+    var dbClient = await db;
+    await dbClient!
+        .insert('robintournmentMatch', robintournmentMatchModel.toMap());
+    return robintournmentMatchModel;
   }
 
   Future<void> getTournmentData() async {
@@ -77,6 +89,19 @@ class DBHelper {
         .toList();
   }
 
+  Future<List<RobinTournmentMatchModel>> getRobinMatchesData(int t_id) async {
+    var dbClient = await db;
+    final List<Map<String, Object?>> result = await dbClient!.rawQuery(
+        'SELECT * FROM robintournmentMatch WHERE tournment_id = $t_id');
+    if (kDebugMode) {
+      print(result);
+    }
+    return result
+        .map<RobinTournmentMatchModel>(
+            (e) => RobinTournmentMatchModel.fromMap(e))
+        .toList();
+  }
+
   Future<List<TournmentModel>> getLastTrnmnt() async {
     var dbClient = await db;
     final List<Map<String, Object?>> result = await dbClient!
@@ -87,6 +112,21 @@ class DBHelper {
     return result
         .map<TournmentModel>((e) => TournmentModel.fromMap(e))
         .toList();
+  }
+
+  Future<int> updateRobinMatch(
+      int id, String winner, String matchPlayed, String winnerScore) async {
+    var dbClient = await db;
+    return await dbClient!.update(
+      'robintournmentMatch',
+      {
+        'winner': winner,
+        'winnerScore': winnerScore,
+        'matchPlayed': matchPlayed,
+      },
+      where: 'm_id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<int> updateMatch(int id, String winner, String matchPlayed) async {

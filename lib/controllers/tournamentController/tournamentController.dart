@@ -6,7 +6,7 @@ import 'package:tictactoe/models/tournmentModel.dart';
 import 'package:tictactoe/models/tournmentmatchModel.dart';
 import 'package:tictactoe/sql_dbHandler/db_handler.dart';
 import 'package:tictactoe/utils/utils.dart';
-import 'package:tictactoe/views/tournamentmatches/tournamentMatches.dart';
+import 'package:tictactoe/views/roundrobinMatches/roundRobinView.dart';
 
 class TournamentMakerController extends GetxController {
   RxString selectedPlayersCount = '4'.obs;
@@ -19,12 +19,11 @@ class TournamentMakerController extends GetxController {
   RxBool tournamentStarted = false.obs;
   DBHelper? dbHelper = DBHelper();
   late Future<List<TournmentModel>> tournamentFuture;
-  late Future<List<TournmentMatchModel>> tournamentMatchesdata;
+  Future<List<TournmentMatchModel>>? tournamentMatchesdata;
   late List<TournmentModel> latestTournmentData;
   List<String> playerList = [];
   int this_t_id = 0;
   List<dynamic> winnersList = [];
-
   Future<void> getTdata() async {
     tournamentFuture = dbHelper!.getLastTrnmnt();
     latestTournmentData = await tournamentFuture;
@@ -63,7 +62,6 @@ class TournamentMakerController extends GetxController {
 // Split the string by commas and remove any leading or trailing spaces
     List<String> playerList =
         playerListString.split(',').map((e) => e.trim()).toList();
-
 
     return playerList;
   }
@@ -116,7 +114,7 @@ class TournamentMakerController extends GetxController {
 
       getTdata();
 
-      Get.to(() => TournamentMatches(t_id: this_t_id),
+      Get.to(() => RobinMatchesView(t_id: this_t_id),
           transition: Transition.rightToLeftWithFade,
           duration: const Duration(milliseconds: 450));
     }).onError((error, stackTrace) {
