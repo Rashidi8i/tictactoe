@@ -151,6 +151,6 @@ class DBHelper {
   Future<int> deletematch(int id) async {
     var dbClient = await db;
     return await dbClient!
-        .delete('tournmentMatch', where: 'm_id > ?', whereArgs: [id]);
+        .delete('tournmentMatch', where: 'tournment_id = ?', whereArgs: [id]);
   }
 }

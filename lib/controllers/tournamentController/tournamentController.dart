@@ -7,6 +7,7 @@ import 'package:tictactoe/models/tournmentmatchModel.dart';
 import 'package:tictactoe/sql_dbHandler/db_handler.dart';
 import 'package:tictactoe/utils/utils.dart';
 import 'package:tictactoe/views/roundrobinMatches/roundRobinView.dart';
+import 'package:tictactoe/views/tournamentmatches/tournamentMatches.dart';
 
 class TournamentMakerController extends GetxController {
   RxString selectedPlayersCount = '4'.obs;
@@ -24,6 +25,7 @@ class TournamentMakerController extends GetxController {
   List<String> playerList = [];
   int this_t_id = 0;
   List<dynamic> winnersList = [];
+
   Future<void> getTdata() async {
     tournamentFuture = dbHelper!.getLastTrnmnt();
     latestTournmentData = await tournamentFuture;
@@ -36,9 +38,6 @@ class TournamentMakerController extends GetxController {
           resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
     }
     // dbHelper!.getTournmentData();
-    if (kDebugMode) {
-      print(latestTournmentData.first);
-    }
   }
 
   final List<String> playerCountList = [
@@ -114,7 +113,7 @@ class TournamentMakerController extends GetxController {
 
       getTdata();
 
-      Get.to(() => RobinMatchesView(t_id: this_t_id),
+      Get.to(() => TournamentMatches(t_id: this_t_id),
           transition: Transition.rightToLeftWithFade,
           duration: const Duration(milliseconds: 450));
     }).onError((error, stackTrace) {
@@ -153,6 +152,9 @@ class TournamentMakerController extends GetxController {
   void deleteTournment() {
     dbHelper!.delete(0).then((value) {
       Utils.toastMessage('Deleted tournment');
+    });
+    dbHelper!.deletematch(this_t_id).then((value) {
+      Utils.toastMessage('matches Deleted!');
     });
   }
 

@@ -65,7 +65,7 @@ class _TournamentMatchesState extends State<RobinMatchesView> {
               onPressed: () {
                 // databaseRef.remove();
                 if (!robinController.tournamentStarted.value) {
-                  tournamentController.deleteTournment();
+                  robinController.deleteTournment();
                   robinController.winnersList.clear();
                 }
                 Get.off(() => const TournamentMaker());

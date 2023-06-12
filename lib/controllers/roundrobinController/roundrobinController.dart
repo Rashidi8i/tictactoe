@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -35,17 +36,13 @@ class RoundRobinController extends GetxController {
     tournamentFuture = dbHelper!.getLastTrnmnt();
     latestTournmentData = await tournamentFuture;
     for (int i = 0; i < resultList.length; i++) {
-      // insertournmentmatchData(resultList[0].toString());
+      insertournmentmatchData(
+          resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
       if (kDebugMode) {
         print(resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
       }
-      insertournmentmatchData(
-          resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
     }
-    dbHelper!.getTournmentData();
-    if (kDebugMode) {
-      print(latestTournmentData.first);
-    }
+    // dbHelper!.getTournmentData();
   }
 
   void insertournmentData() {
@@ -64,6 +61,7 @@ class RoundRobinController extends GetxController {
 
       getTdata();
 
+      // loadMatchesData();
       Get.to(() => RobinMatchesView(t_id: this_t_id),
           transition: Transition.rightToLeftWithFade,
           duration: const Duration(milliseconds: 450));
@@ -76,7 +74,7 @@ class RoundRobinController extends GetxController {
     });
   }
 
-  void insertournmentmatchData(String playerList) {
+  void insertournmentmatchData(String playerList) async {
     TournmentModel data = latestTournmentData.first;
     this_t_id = data.t_id!;
     dbHelper!
@@ -105,7 +103,17 @@ class RoundRobinController extends GetxController {
     robintournamentMatchesdata = dbHelper!.getRobinMatchesData(this_t_id);
   }
 
+  void deleteTournment() {
+    dbHelper!.delete(0).then((value) {
+      Utils.toastMessage('Deleted tournment');
+    });
+    dbHelper!.deletematch(this_t_id).then((value) {
+      Utils.toastMessage('matches Deleted!');
+    });
+  }
+
   List<dynamic> robinTournment(List<String> teamList) {
+    resultList.clear();
     for (int i = 0; i < teamList.length - 1; i++) {
       for (int j = i + 1; j < teamList.length; j++) {
         resultList.add([teamList[i], teamList[j]]);
