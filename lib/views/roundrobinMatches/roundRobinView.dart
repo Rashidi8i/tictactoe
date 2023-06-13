@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:tictactoe/controllers/roundrobinController/roundrobinController.dart';
 import 'package:tictactoe/controllers/tournamentController/tournamentController.dart';
 import 'package:tictactoe/models/robintournmentMatch.dart';
-import 'package:tictactoe/models/tournmentmatchModel.dart';
 import 'package:tictactoe/res/colors/app_color.dart';
 import 'package:tictactoe/res/components/round_button.dart';
 import 'package:tictactoe/res/constants/constants.dart';
@@ -27,11 +26,13 @@ class _TournamentMatchesState extends State<RobinMatchesView> {
   @override
   void initState() {
     super.initState();
-    // if (robinController.playedMatches.value == 6) {
-    //   robinController.isfinal.value = true;
-    // } else {
-    //   robinController.isfinal.value = false;
-    // }
+    if (robinController.playedMatches.value == 3 ||
+        robinController.playedMatches.value == 4) {
+      robinController.getMatchNumber(robinController.playedMatches.value);
+      robinController.isfinal.value = true;
+    } else {
+      robinController.isfinal.value = false;
+    }
     // if (robinController.resultList.length ==
     //     robinController.playedMatches.value) {
     //   if (tournamentController.winnersList.length == 2) {
@@ -92,7 +93,12 @@ class _TournamentMatchesState extends State<RobinMatchesView> {
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                               children: [
-                                Text(robinController.matchNum(index + 1),
+                                Text(
+                                    robinController.playedMatches.value < 3
+                                        ? robinController.matchNum(index + 1)
+                                        : robinController.getMatchNumber(
+                                            robinController
+                                                .playedMatches.value),
                                     style: const TextStyle(
                                         color: AppColor.whiteColor,
                                         fontWeight: FontWeight.bold,
@@ -199,9 +205,13 @@ class _TournamentMatchesState extends State<RobinMatchesView> {
                                                       .value = true;
                                                   Get.off(
                                                       () => GameView(
-                                                          matchNum:
-                                                              robinController.matchNum(
-                                                                  index + 1),
+                                                          matchNum: robinController.playedMatches.value < 3
+                                                              ? robinController.matchNum(
+                                                                  index + 1)
+                                                              : robinController.getMatchNumber(
+                                                                  robinController
+                                                                      .playedMatches
+                                                                      .value),
                                                           matchid: snapshot
                                                               .data![index].m_id
                                                               .toString(),
@@ -215,10 +225,8 @@ class _TournamentMatchesState extends State<RobinMatchesView> {
                                                               .playerList!
                                                               .split(',')[1],
                                                           isTournament: true),
-                                                      transition: Transition
-                                                          .rightToLeftWithFade,
-                                                      duration: const Duration(
-                                                          milliseconds: 450));
+                                                      transition: Transition.rightToLeftWithFade,
+                                                      duration: const Duration(milliseconds: 450));
                                                 },
                                                 child: Container(
                                                   height: 40,

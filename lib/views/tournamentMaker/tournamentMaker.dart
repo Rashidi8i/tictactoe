@@ -122,7 +122,7 @@ class _TournamentMakerState extends State<TournamentMaker> {
                           width: double.infinity,
                         )
                       : RoundButton(
-                          loading: tournamentController.loading.value,
+                          loading: robinController.loading.value,
                           title: 'Generate r Tournament',
                           onPress: () {
                             robinController.playedMatches.value = 0;

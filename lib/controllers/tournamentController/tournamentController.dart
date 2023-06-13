@@ -6,7 +6,6 @@ import 'package:tictactoe/models/tournmentModel.dart';
 import 'package:tictactoe/models/tournmentmatchModel.dart';
 import 'package:tictactoe/sql_dbHandler/db_handler.dart';
 import 'package:tictactoe/utils/utils.dart';
-import 'package:tictactoe/views/roundrobinMatches/roundRobinView.dart';
 import 'package:tictactoe/views/tournamentmatches/tournamentMatches.dart';
 
 class TournamentMakerController extends GetxController {
@@ -29,6 +28,8 @@ class TournamentMakerController extends GetxController {
   Future<void> getTdata() async {
     tournamentFuture = dbHelper!.getLastTrnmnt();
     latestTournmentData = await tournamentFuture;
+    // await Future.delayed(const Duration(seconds: 2));
+
     for (int i = 0; i < resultList.length; i++) {
       // insertournmentmatchData(resultList[0].toString());
       if (kDebugMode) {
@@ -37,6 +38,11 @@ class TournamentMakerController extends GetxController {
       insertournmentmatchData(
           resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
     }
+    loading.value = false;
+
+    Get.to(() => TournamentMatches(t_id: this_t_id),
+        transition: Transition.rightToLeftWithFade,
+        duration: const Duration(milliseconds: 450));
     // dbHelper!.getTournmentData();
   }
 
@@ -51,7 +57,7 @@ class TournamentMakerController extends GetxController {
     '10'
   ];
   final List<String> eliminationTournamentList = ['4', '8'];
-  final List<String> tournamentType = ['Elimination', 'Round Robin'];
+  final List<String> tournamentType = ['Elimination'];
   final List<String> playersName = [];
   List<dynamic> resultList = [];
 
@@ -112,10 +118,6 @@ class TournamentMakerController extends GetxController {
       playersName.clear();
 
       getTdata();
-
-      Get.to(() => TournamentMatches(t_id: this_t_id),
-          transition: Transition.rightToLeftWithFade,
-          duration: const Duration(milliseconds: 450));
     }).onError((error, stackTrace) {
       if (kDebugMode) {
         print(error.toString());

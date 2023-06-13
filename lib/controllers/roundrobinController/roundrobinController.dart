@@ -35,6 +35,7 @@ class RoundRobinController extends GetxController {
   Future<void> getTdata() async {
     tournamentFuture = dbHelper!.getLastTrnmnt();
     latestTournmentData = await tournamentFuture;
+    await Future.delayed(const Duration(seconds: 2));
     for (int i = 0; i < resultList.length; i++) {
       insertournmentmatchData(
           resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
@@ -42,7 +43,19 @@ class RoundRobinController extends GetxController {
         print(resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
       }
     }
+    loading.value = false;
+    Get.to(() => RobinMatchesView(t_id: this_t_id),
+        transition: Transition.rightToLeftWithFade,
+        duration: const Duration(milliseconds: 450));
     // dbHelper!.getTournmentData();
+  }
+
+  String getMatchNumber(int currentmatchNumber) {
+    if (resultList.length == 3 || resultList.length == 4) {
+      return 'Final';
+    } else {
+      return 'SEMI FINAL';
+    }
   }
 
   void insertournmentData() {
@@ -62,9 +75,6 @@ class RoundRobinController extends GetxController {
       getTdata();
 
       // loadMatchesData();
-      Get.to(() => RobinMatchesView(t_id: this_t_id),
-          transition: Transition.rightToLeftWithFade,
-          duration: const Duration(milliseconds: 450));
     }).onError((error, stackTrace) {
       if (kDebugMode) {
         print(error.toString());
@@ -76,6 +86,7 @@ class RoundRobinController extends GetxController {
 
   void insertournmentmatchData(String playerList) async {
     TournmentModel data = latestTournmentData.first;
+
     this_t_id = data.t_id!;
     dbHelper!
         .insert_robin_tournment_match(RobinTournmentMatchModel(

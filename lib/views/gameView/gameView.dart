@@ -9,6 +9,7 @@ import 'package:tictactoe/res/colors/app_color.dart';
 import 'package:tictactoe/res/constants/constants.dart';
 import 'package:tictactoe/sql_dbHandler/db_handler.dart';
 import 'package:tictactoe/views/gameModeView/gamemode.dart';
+import 'package:tictactoe/views/roundrobinMatches/roundRobinView.dart';
 import 'package:tictactoe/views/tournamentmatches/tournamentMatches.dart';
 
 class GameView extends StatefulWidget {
@@ -508,20 +509,21 @@ class _GameViewState extends State<GameView> {
       robinController.playedMatches.value++;
       if (gameViewController.winner.value == 'Player A winner') {
         winner = widget.playerA;
-
+        winnerScore = gameViewController.player_A_Score.value.toString();
         robinController.winnersList.add(widget.playerA);
       } else {
         winner = widget.playerB;
+        winnerScore = gameViewController.player_B_Score.value.toString();
         robinController.winnersList.add(widget.playerB);
       }
 
       dbHelper.updateRobinMatch(
-          int.parse(widget.matchid), winner, winnerScore, 'true');
+          int.parse(widget.matchid), winner, 'ture', winnerScore);
       gameViewController.restart_game();
       if (robinController.isfinal.value) {
         robinController.finalDone.value = true;
       }
-      Get.off(() => TournamentMatches(t_id: robinController.this_t_id),
+      Get.off(() => RobinMatchesView(t_id: robinController.this_t_id),
           transition: Transition.rightToLeftWithFade,
           duration: const Duration(milliseconds: 450));
     }
