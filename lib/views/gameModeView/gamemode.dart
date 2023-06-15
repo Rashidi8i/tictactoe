@@ -17,40 +17,43 @@ class _GameModeState extends State<GameMode> {
   final nameController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const CircleAvatar(
-          backgroundImage: NetworkImage(
-              'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQmcqzN9KSMx-hxPJfiB3yt59uQhN9R4IqjisfUEitJv9lbQVN14QYLsUfmgiH-AoH2VgTFMdRBaTWa9XXpU9aMV1fveYnRgRsf4peaqt_rCR_qyQ483NgjHHdhfYpOr8axyGWhk3DHw5lAUQkXl6NGMugPS7k6Apw7CUjqRMgwAv01i2_AXyRumuBfw/w680/blank-profile-picture-hd-images-photo.JPG'),
-        ),
-        automaticallyImplyLeading: false,
-        title: const Text('Select Game mode'),
-      ),
-      body: Container(
-        height: Constants.getHeight(context),
-        width: Constants.getWidth(context),
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('Assets/icons/back_1.jpg'),
-                fit: BoxFit.fitHeight)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            modeBox(context, 'Single Match', () {
-              Get.to(() => const GameView(),
-                  transition: Transition.rightToLeftWithFade,
-                  duration: const Duration(milliseconds: 450));
-            }),
-            const SizedBox(
-              height: 20,
-            ),
-            modeBox(context, 'Tournament', () {
-              // showMyDialog();
-              Get.to(() => const TournamentMaker(),
-                  transition: Transition.rightToLeftWithFade,
-                  duration: const Duration(milliseconds: 450));
-            }),
-          ],
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
+          height: Constants.getHeight(context),
+          width: Constants.getWidth(context),
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('Assets/icons/back_2.png'),
+                  fit: BoxFit.fitHeight)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              modeBox(context, 'Single Match', () {
+                Get.off(() => const GameView(),
+                    transition: Transition.rightToLeftWithFade,
+                    duration: const Duration(milliseconds: 450));
+              }),
+              const SizedBox(
+                height: 20,
+              ),
+              modeBox(context, 'Tournament', () {
+                // showMyDialog();
+                Get.off(() => const TournamentMaker(),
+                    transition: Transition.rightToLeftWithFade,
+                    duration: const Duration(milliseconds: 450));
+              }),
+              const SizedBox(
+                height: 20,
+              ),
+              modeBox(context, 'Options', () {
+                // showMyDialog();
+                Get.to(() => const TournamentMaker(),
+                    transition: Transition.rightToLeftWithFade,
+                    duration: const Duration(milliseconds: 450));
+              }),
+            ],
+          ),
         ),
       ),
     );
@@ -102,22 +105,20 @@ class _GameModeState extends State<GameMode> {
   InkWell modeBox(BuildContext context, String title, VoidCallback ontap) {
     return InkWell(
       onTap: ontap,
-      child: Center(
-        child: Container(
-          height: Constants.getHeight(context) * 0.1,
-          width: Constants.getWidth(context) * 0.9,
-          decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
-              color: AppColor.blue,
-              border: Border.all(color: AppColor.pinkColor)),
-          child: Center(
-            child: Text(
-              title,
-              style: const TextStyle(
-                  color: AppColor.whiteColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25),
-            ),
+      child: Container(
+        height: Constants.getHeight(context) * 0.1,
+        width: Constants.getWidth(context) * 0.9,
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('Assets/icons/button.png'),
+                fit: BoxFit.fitHeight)),
+        child: Center(
+          child: Text(
+            title,
+            style: const TextStyle(
+                color: AppColor.whiteColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 35),
           ),
         ),
       ),

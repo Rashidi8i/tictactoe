@@ -40,7 +40,7 @@ class TournamentMakerController extends GetxController {
     }
     loading.value = false;
 
-    Get.to(() => TournamentMatches(t_id: this_t_id),
+    Get.off(() => TournamentMatches(t_id: this_t_id),
         transition: Transition.rightToLeftWithFade,
         duration: const Duration(milliseconds: 450));
     // dbHelper!.getTournmentData();

@@ -1,8 +1,10 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:tictactoe/firebase_services/splash_services.dart';
+import 'package:get/get.dart';
+import 'package:tictactoe/controllers/splashController.dart';
 import 'package:tictactoe/res/colors/app_color.dart';
+import 'package:tictactoe/res/constants/constants.dart';
 
 // import 'package:tictactoe/views/login_view/login_view.dart';
 
@@ -14,35 +16,48 @@ class SplashView extends StatefulWidget {
 }
 
 class _SplashViewState extends State<SplashView> {
-  SplashServices splashServices = SplashServices();
+  final splashController = Get.put(SplashController());
 
   @override
   void initState() {
     super.initState();
-    splashServices.islogin(context);
+    splashController.increaseSize();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.primaryColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'Game Arena',
-              style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.primaryTextColor),
-            ),
-            Text(
-              'Let\'s compete together!',
-              style:
-                  TextStyle(fontSize: 20, color: AppColor.secondaryTextColor),
-            ),
-          ],
+      body: Container(
+        height: Constants.getHeight(context),
+        width: Constants.getWidth(context),
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('Assets/icons/back_2.png'),
+                fit: BoxFit.fitHeight)),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Obx(() {
+                return ImageIcon(
+                  AssetImage('Assets/icons/wolf.png'),
+                  size: splashController.iconSize.value,
+                  color: AppColor.greyColor,
+                );
+              }),
+              const Text(
+                'Game Arena',
+                style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.whiteColor),
+              ),
+              const Text(
+                'Let\'s compete together!',
+                style: TextStyle(fontSize: 20, color: AppColor.greyColor),
+              ),
+            ],
+          ),
         ),
       ),
     );

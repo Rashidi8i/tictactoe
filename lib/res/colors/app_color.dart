@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
+
 class AppColor {
   static const Color blackColor = Color(0xff000000);
   static const Color whiteColor = Color(0xffffffff);
@@ -23,6 +25,17 @@ class AppColor {
   static const Color buttonTextColor = Color.fromARGB(255, 255, 255, 255);
 
   static const Color greyColor = Color.fromARGB(255, 224, 224, 224);
+  static const Color darkgreyColor = Color.fromARGB(255, 102, 102, 102);
   static const Color pinkColor = Color.fromARGB(255, 255, 0, 170);
   static const Color greenColor = Color.fromARGB(255, 40, 139, 0);
+
+  static BoxDecoration decoration = BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [
+          Color.fromARGB(255, 1, 39, 37),
+          Color.fromARGB(255, 1, 116, 110)
+        ],
+      ),
+      border: Border.all(
+          width: 2, color: const Color.fromARGB(255, 141, 139, 139)));
 }

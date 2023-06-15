@@ -66,21 +66,28 @@ class _TournamentMakerState extends State<TournamentMaker> {
         body: Container(
           height: Constants.getHeight(context),
           width: Constants.getWidth(context),
-          color: AppColor.greyColor,
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('Assets/icons/back_2.png'),
+                  fit: BoxFit.fitHeight)),
           child: SingleChildScrollView(
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceAround
               children: [
                 const Center(
                   child: Text('Tournament Type',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                          color: AppColor.whiteColor)),
                 ),
                 tournamentDrop(),
                 const Center(
                   child: Text('Select PLayers',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                          color: AppColor.whiteColor)),
                 ),
                 playersDropDown(),
                 textFieldBox(context),
@@ -92,6 +99,7 @@ class _TournamentMakerState extends State<TournamentMaker> {
                   child: Obx(() => tournamentController.selectedType.value ==
                           'Elimination'
                       ? RoundButton(
+                          buttonColor: AppColor.blackColor,
                           loading: tournamentController.loading.value,
                           title: 'Generate e Tournament',
                           onPress: () {
@@ -159,7 +167,7 @@ class _TournamentMakerState extends State<TournamentMaker> {
         height: Constants.getHeight(context) * 0.6,
         width: Constants.getWidth(context) * 0.95,
         decoration: const BoxDecoration(
-            color: AppColor.darkBlue,
+            // color: AppColor.darkBlue,
             borderRadius: BorderRadius.all(Radius.circular(12))),
         child: ListView.builder(
           itemCount: int.parse(tournamentController.selectedPlayersCount.value),
@@ -167,8 +175,11 @@ class _TournamentMakerState extends State<TournamentMaker> {
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
-                width: Constants.getWidth(context) * 0.3,
-                color: AppColor.blue,
+                // width: Constants.getWidth(context) * 0.3,
+                decoration: const BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('Assets/icons/button.png'),
+                        fit: BoxFit.fitWidth)),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -189,6 +200,7 @@ class _TournamentMakerState extends State<TournamentMaker> {
                             validator: nonEmptyValidator,
                             controller: textFeildList[index],
                             decoration: InputDecoration(
+                                enabledBorder: InputBorder.none,
                                 border: const OutlineInputBorder(),
                                 hintStyle:
                                     const TextStyle(color: AppColor.whiteColor),
@@ -208,15 +220,12 @@ class _TournamentMakerState extends State<TournamentMaker> {
   Obx tournamentDrop() {
     return Obx(() {
       return DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.lightBlue, //background color of dropdown button
-            border: Border.all(
-                color: Colors.black38, width: 3), //border of dropdown button
-            borderRadius:
-                BorderRadius.circular(20), //border raiuds of dropdown button
-          ),
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('Assets/icons/button.png'),
+                  fit: BoxFit.fitHeight)),
           child: Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: DropdownButton(
                 value: tournamentController.selectedType.value,
                 items: tournamentController.tournamentType.map((String value) {
@@ -245,7 +254,7 @@ class _TournamentMakerState extends State<TournamentMaker> {
                     color: Colors.white, //Font color
                     fontSize: 20 //font size on dropdown button
                     ),
-                dropdownColor: Colors.redAccent, //dropdown background color
+                dropdownColor: AppColor.blackColor, //dropdown background color
               )));
     });
   }
@@ -253,15 +262,12 @@ class _TournamentMakerState extends State<TournamentMaker> {
   Obx playersDropDown() {
     return Obx(() {
       return DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.lightBlue, //background color of dropdown button
-            border: Border.all(
-                color: Colors.black38, width: 3), //border of dropdown button
-            borderRadius:
-                BorderRadius.circular(20), //border raiuds of dropdown button
-          ),
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('Assets/icons/button.png'),
+                  fit: BoxFit.fitHeight)),
           child: Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: DropdownButton(
                 value: tournamentController.selectedPlayersCount.value,
                 items: tournamentController.selectedType.value == 'Elimination'
@@ -301,7 +307,7 @@ class _TournamentMakerState extends State<TournamentMaker> {
                     color: Colors.white, //Font color
                     fontSize: 20 //font size on dropdown button
                     ),
-                dropdownColor: Colors.redAccent, //dropdown background color
+                dropdownColor: AppColor.blackColor, //dropdown background color
               )));
     });
   }
