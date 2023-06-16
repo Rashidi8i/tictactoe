@@ -8,7 +8,8 @@ class SplashController extends GetxController {
   void increaseSize() {
     Timer.periodic(const Duration(milliseconds: 25), (Timer timer) {
       iconSize.value++;
-      if (iconSize >= 400.0) {
+      if (iconSize.value >= 280.0) {
+        // iconSize.value = 160;
         timer.cancel();
         Get.off(() => const GameMode(),
             transition: Transition.rightToLeftWithFade,

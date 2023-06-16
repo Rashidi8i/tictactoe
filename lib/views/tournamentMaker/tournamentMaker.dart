@@ -3,12 +3,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tictactoe/controllers/roundrobinController/roundrobinController.dart';
 import 'package:tictactoe/controllers/tournamentController/tournamentController.dart';
 import 'package:tictactoe/res/colors/app_color.dart';
 import 'package:tictactoe/res/components/round_button.dart';
 import 'package:tictactoe/res/constants/constants.dart';
 import 'package:tictactoe/utils/utils.dart';
+import 'package:tictactoe/views/gameModeView/gamemode.dart';
 
 class TournamentMaker extends StatefulWidget {
   const TournamentMaker({super.key});
@@ -19,7 +19,6 @@ class TournamentMaker extends StatefulWidget {
 
 class _TournamentMakerState extends State<TournamentMaker> {
   final tournamentController = Get.put(TournamentMakerController());
-  final robinController = Get.put(RoundRobinController());
   final nameController = TextEditingController();
   List<TextEditingController> textFeildList = [];
 
@@ -45,12 +44,6 @@ class _TournamentMakerState extends State<TournamentMaker> {
     }
   }
 
-  void saveRobinPlayersName() {
-    for (int i = 0; i < textFeildList.length; i++) {
-      robinController.playersName.add(textFeildList[i].text);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -63,45 +56,53 @@ class _TournamentMakerState extends State<TournamentMaker> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Container(
-          height: Constants.getHeight(context),
-          width: Constants.getWidth(context),
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('Assets/icons/back_2.png'),
-                  fit: BoxFit.fitHeight)),
-          child: SingleChildScrollView(
-            child: Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceAround
-              children: [
-                const Center(
-                  child: Text('Tournament Type',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          color: AppColor.whiteColor)),
-                ),
-                tournamentDrop(),
-                const Center(
-                  child: Text('Select PLayers',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          color: AppColor.whiteColor)),
-                ),
-                playersDropDown(),
-                textFieldBox(context),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Obx(() => tournamentController.selectedType.value ==
-                          'Elimination'
-                      ? RoundButton(
+        body: WillPopScope(
+          onWillPop: () async {
+            Get.off(() => const GameMode(),
+                transition: Transition.rightToLeftWithFade,
+                duration: const Duration(milliseconds: 450));
+            return true;
+          },
+          child: Container(
+            height: Constants.getHeight(context),
+            width: Constants.getWidth(context),
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('Assets/icons/back_2.png'),
+                    fit: BoxFit.fitHeight)),
+            child: SingleChildScrollView(
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.spaceAround
+                children: [
+                  const Center(
+                    child: Text('Tournament Type',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: AppColor.whiteColor)),
+                  ),
+                  tournamentDrop(),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  const Center(
+                    child: Text('Select PLayers',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: AppColor.whiteColor)),
+                  ),
+                  playersDropDown(),
+                  textFieldBox(context),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Obx(() => RoundButton(
                           buttonColor: AppColor.blackColor,
                           loading: tournamentController.loading.value,
-                          title: 'Generate e Tournament',
+                          title: 'Generate Tournament',
                           onPress: () {
                             tournamentController.playedMatches.value = 0;
                             tournamentController.loading.value = true;
@@ -113,13 +114,6 @@ class _TournamentMakerState extends State<TournamentMaker> {
                               savePlayersName();
                               tournamentController.eliminationTournament(
                                   tournamentController.playersName);
-                              if (kDebugMode) {
-                                print(
-                                    tournamentController.eliminationTournament(
-                                        tournamentController.playersName));
-                              }
-
-                              //insert tournment
                               tournamentController.insertournmentData();
                               tournamentController.loading.value = false;
                             } else {
@@ -128,32 +122,10 @@ class _TournamentMakerState extends State<TournamentMaker> {
                             }
                           },
                           width: double.infinity,
-                        )
-                      : RoundButton(
-                          loading: robinController.loading.value,
-                          title: 'Generate r Tournament',
-                          onPress: () {
-                            robinController.playedMatches.value = 0;
-                            robinController.loading.value = true;
-
-                            if (allFieldsValid()) {
-                              robinController.generateTournament.value = true;
-                              saveRobinPlayersName();
-                              robinController
-                                  .robinTournment(robinController.playersName);
-
-                              //insert tournment
-                              robinController.insertournmentData();
-                              robinController.loading.value = false;
-                            } else {
-                              Utils.toastMessage('All names are required*');
-                              robinController.loading.value = false;
-                            }
-                          },
-                          width: double.infinity,
                         )),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
         ),

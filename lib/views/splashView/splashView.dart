@@ -39,10 +39,24 @@ class _SplashViewState extends State<SplashView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Obx(() {
-                return ImageIcon(
-                  AssetImage('Assets/icons/wolf.png'),
-                  size: splashController.iconSize.value,
-                  color: AppColor.greyColor,
+                return Center(
+                  child: Stack(
+                    children: [
+                      ImageIcon(
+                        const AssetImage('Assets/icons/wolf.png'),
+                        size: splashController.iconSize.value,
+                        // color: AppColor.greyColor,
+                      ),
+                      splashController.iconSize.value > 243 &&
+                              splashController.iconSize.value < 250
+                          ? ImageIcon(
+                              const AssetImage('Assets/icons/wolf.png'),
+                              size: splashController.iconSize.value,
+                              color: AppColor.redColor,
+                            )
+                          : const SizedBox(),
+                    ],
+                  ),
                 );
               }),
               const Text(

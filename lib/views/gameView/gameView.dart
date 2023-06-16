@@ -3,14 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tictactoe/controllers/gameviewController/gameviewController.dart';
-import 'package:tictactoe/controllers/roundrobinController/roundrobinController.dart';
 import 'package:tictactoe/controllers/tournamentController/tournamentController.dart';
 import 'package:tictactoe/res/colors/app_color.dart';
 import 'package:tictactoe/res/constants/constants.dart';
 import 'package:tictactoe/sql_dbHandler/db_handler.dart';
-import 'package:tictactoe/utils/utils.dart';
 import 'package:tictactoe/views/gameModeView/gamemode.dart';
-import 'package:tictactoe/views/roundrobinMatches/roundRobinView.dart';
+import 'package:tictactoe/views/tournamentMaker/tournamentMaker.dart';
 import 'package:tictactoe/views/tournamentmatches/tournamentMatches.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -37,7 +35,6 @@ class GameView extends StatefulWidget {
 class _GameViewState extends State<GameView> {
   final gameViewController = Get.put(GameViewController());
   final tournamentController = Get.put(TournamentMakerController());
-  final robinController = Get.put(RoundRobinController());
   String winner = '';
   String winnerScore = '';
   DBHelper dbHelper = DBHelper();
@@ -50,200 +47,318 @@ class _GameViewState extends State<GameView> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(body: Obx(() {
-      return Stack(
-        children: [
-          Container(
-            height: Constants.getHeight(context),
-            width: Constants.getWidth(context),
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('Assets/icons/back_2.png'),
-                    fit: BoxFit.fitHeight)),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    PlayerABox(),
-                    PlayerBBox(),
-                  ],
-                ),
-                SizedBox(
-                  height: Constants.getHeight(context) * 0.01,
-                ),
-                Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color.fromARGB(255, 1, 39, 37),
-                          Color.fromARGB(255, 1, 116, 110)
-                        ],
-                      ),
-                      border: Border.all(
-                          width: 2,
-                          color: const Color.fromARGB(255, 141, 139, 139))),
-                  child: Center(
-                    child: Text(widget.matchNum,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                            color: AppColor.whiteColor)),
+    return SafeArea(
+        child: Scaffold(
+            body: WillPopScope(
+      onWillPop: () async {
+        if (!gameViewController.gameStarted.value) {
+          if (widget.isTournament) {
+            Get.off(() => TournamentMatches(t_id: Constants.t_id),
+                transition: Transition.rightToLeftWithFade,
+                duration: const Duration(milliseconds: 450));
+          } else {
+            Get.off(() => const GameMode(),
+                transition: Transition.rightToLeftWithFade,
+                duration: const Duration(milliseconds: 450));
+          }
+          return true;
+        } else {
+          return false;
+        }
+      },
+      child: Obx(() {
+        return Stack(
+          children: [
+            Container(
+              height: Constants.getHeight(context),
+              width: Constants.getWidth(context),
+              decoration: const BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('Assets/icons/back_2.png'),
+                      fit: BoxFit.fitHeight)),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      PlayerABox(),
+                      PlayerBBox(),
+                    ],
                   ),
-                ),
-                SizedBox(
-                  height: Constants.getHeight(context) * 0.1,
-                ),
-                Container(
-                    height: 270,
-                    width: 270,
-                    // decoration: const BoxDecoration(
-                    //     image: DecorationImage(
-                    //         image: AssetImage('Assets/icons/back_2.png'),
-                    //         fit: BoxFit.cover)),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r1c1_done.value
-                                    ? gameViewController.make_turn('r1c1')
-                                    : null;
+                  SizedBox(
+                    height: Constants.getHeight(context) * 0.01,
+                  ),
+                  Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 1, 39, 37),
+                            Color.fromARGB(255, 1, 116, 110)
+                          ],
+                        ),
+                        border: Border.all(
+                            width: 2,
+                            color: const Color.fromARGB(255, 141, 139, 139))),
+                    child: Center(
+                      child: Text(widget.matchNum,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                              color: AppColor.whiteColor)),
+                    ),
+                  ),
+                  SizedBox(
+                    height: Constants.getHeight(context) * 0.1,
+                  ),
+                  Container(
+                      height: 270,
+                      width: 270,
+                      // decoration: const BoxDecoration(
+                      //     image: DecorationImage(
+                      //         image: AssetImage('Assets/icons/back_2.png'),
+                      //         fit: BoxFit.cover)),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r1c1_done.value
+                                      ? gameViewController.make_turn('r1c1')
+                                      : null;
 
-                                // player.play(AssetSource('audio/tapsound.mp3'));
-                              },
-                              child: GameBox(
-                                  'r1c1',
-                                  gameViewController.r1c1_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r1c2_done.value
-                                    ? gameViewController.make_turn('r1c2')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r1c2',
-                                  gameViewController.r1c2_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r1c3_done.value
-                                    ? gameViewController.make_turn('r1c3')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r1c3',
-                                  gameViewController.r1c3_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            )
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r2c1_done.value
-                                    ? gameViewController.make_turn('r2c1')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r2c1',
-                                  gameViewController.r2c1_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r2c2_done.value
-                                    ? gameViewController.make_turn('r2c2')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r2c2',
-                                  gameViewController.r2c2_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r2c3_done.value
-                                    ? gameViewController.make_turn('r2c3')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r2c3',
-                                  gameViewController.r2c3_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            )
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r3c1_done.value
-                                    ? gameViewController.make_turn('r3c1')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r3c1',
-                                  gameViewController.r3c1_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r3c2_done.value
-                                    ? gameViewController.make_turn('r3c2')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r3c2',
-                                  gameViewController.r3c2_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                !gameViewController.r3c3_done.value
-                                    ? gameViewController.make_turn('r3c3')
-                                    : null;
-                              },
-                              child: GameBox(
-                                  'r3c3',
-                                  gameViewController.r3c3_win.value
-                                      ? AppColor.darkgreyColor
-                                      : AppColor.blackColor),
-                            )
-                          ],
-                        ),
-                      ],
-                    )),
-              ],
+                                  // player.play(AssetSource('audio/tapsound.mp3'));
+                                },
+                                child: GameBox(
+                                    'r1c1',
+                                    gameViewController.r1c1_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r1c2_done.value
+                                      ? gameViewController.make_turn('r1c2')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r1c2',
+                                    gameViewController.r1c2_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r1c3_done.value
+                                      ? gameViewController.make_turn('r1c3')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r1c3',
+                                    gameViewController.r1c3_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r2c1_done.value
+                                      ? gameViewController.make_turn('r2c1')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r2c1',
+                                    gameViewController.r2c1_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r2c2_done.value
+                                      ? gameViewController.make_turn('r2c2')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r2c2',
+                                    gameViewController.r2c2_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r2c3_done.value
+                                      ? gameViewController.make_turn('r2c3')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r2c3',
+                                    gameViewController.r2c3_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r3c1_done.value
+                                      ? gameViewController.make_turn('r3c1')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r3c1',
+                                    gameViewController.r3c1_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r3c2_done.value
+                                      ? gameViewController.make_turn('r3c2')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r3c2',
+                                    gameViewController.r3c2_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  !gameViewController.r3c3_done.value
+                                      ? gameViewController.make_turn('r3c3')
+                                      : null;
+                                },
+                                child: GameBox(
+                                    'r3c3',
+                                    gameViewController.r3c3_win.value
+                                        ? AppColor.darkgreyColor
+                                        : AppColor.blackColor),
+                              )
+                            ],
+                          ),
+                        ],
+                      )),
+                ],
+              ),
             ),
+            gameViewController.winner_decided.value
+                ? winnerBox(context)
+                : Container(),
+            !gameViewController.gameStarted.value
+                ? Center(child: start_game())
+                : Container()
+          ],
+        );
+      }),
+    )));
+  }
+
+  Container alertBox(BuildContext context) {
+    return Container(
+      height: Constants.getHeight(context),
+      width: Constants.getWidth(context),
+      color: const Color.fromARGB(106, 255, 0, 0),
+      child: Center(
+        child: Container(
+          height: 150,
+          width: double.infinity,
+          decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 250, 0, 0),
+                  Color.fromARGB(255, 250, 114, 114),
+                  Color.fromARGB(255, 250, 0, 0),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                  width: 2, color: const Color.fromARGB(255, 255, 255, 255))),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Text(
+                'Want to Quit match?',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                    color: AppColor.blackColor),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Container(
+                    height: 50,
+                    width: 80,
+                    decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 250, 0, 0),
+                            Color.fromARGB(255, 0, 0, 0),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            width: 2,
+                            color: const Color.fromARGB(255, 255, 255, 255))),
+                    child: InkWell(
+                      onTap: () {
+                        Get.off(() => TournamentMatches(
+                              t_id: Constants.t_id,
+                            ));
+                      },
+                      child: const Center(
+                        child: Text('Yes',
+                            style: TextStyle(
+                                color: AppColor.whiteColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25)),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 50,
+                    width: 80,
+                    decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 0, 0, 0),
+                            Color.fromARGB(255, 124, 124, 124),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            width: 2,
+                            color: const Color.fromARGB(255, 255, 255, 255))),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Center(
+                        child: Text('No',
+                            style: TextStyle(
+                                color: AppColor.whiteColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25)),
+                      ),
+                    ),
+                  )
+                ],
+              )
+            ],
           ),
-          gameViewController.winner_decided.value
-              ? winnerBox(context)
-              : Container(),
-          !gameViewController.gameStarted.value
-              ? Center(child: start_game())
-              : Container()
-        ],
-      );
-    })));
+        ),
+      ),
+    );
   }
 
   InkWell start_game() {
@@ -588,48 +703,25 @@ class _GameViewState extends State<GameView> {
   }
 
   void nextMatch() {
-    if (tournamentController.selectedType.value == 'Elimination') {
-      tournamentController.playedMatches.value++;
-      if (gameViewController.winner.value == 'Player A winner') {
-        winner = widget.playerA;
-        winnerScore = gameViewController.player_A_Score.value.toString();
-        tournamentController.winnersList.add(widget.playerA);
-      } else {
-        winner = widget.playerB;
-        winnerScore = gameViewController.player_A_Score.value.toString();
-        tournamentController.winnersList.add(widget.playerB);
-      }
-
-      dbHelper.updateMatch(int.parse(widget.matchid), winner, 'true');
-      gameViewController.restart_game();
-      if (tournamentController.isfinal.value) {
-        tournamentController.finalDone.value = true;
-      }
-      Get.off(() => TournamentMatches(t_id: tournamentController.this_t_id),
-          transition: Transition.rightToLeftWithFade,
-          duration: const Duration(milliseconds: 450));
+    tournamentController.playedMatches.value++;
+    if (gameViewController.winner.value == 'Player A winner') {
+      winner = widget.playerA;
+      winnerScore = gameViewController.player_A_Score.value.toString();
+      tournamentController.winnersList.add(widget.playerA);
     } else {
-      robinController.playedMatches.value++;
-      if (gameViewController.winner.value == 'Player A winner') {
-        winner = widget.playerA;
-        winnerScore = gameViewController.player_A_Score.value.toString();
-        robinController.winnersList.add(widget.playerA);
-      } else {
-        winner = widget.playerB;
-        winnerScore = gameViewController.player_B_Score.value.toString();
-        robinController.winnersList.add(widget.playerB);
-      }
-
-      dbHelper.updateRobinMatch(
-          int.parse(widget.matchid), winner, 'ture', winnerScore);
-      gameViewController.restart_game();
-      if (robinController.isfinal.value) {
-        robinController.finalDone.value = true;
-      }
-      Get.off(() => RobinMatchesView(t_id: robinController.this_t_id),
-          transition: Transition.rightToLeftWithFade,
-          duration: const Duration(milliseconds: 450));
+      winner = widget.playerB;
+      winnerScore = gameViewController.player_A_Score.value.toString();
+      tournamentController.winnersList.add(widget.playerB);
     }
+
+    dbHelper.updateMatch(int.parse(widget.matchid), winner, 'true');
+    gameViewController.restart_game();
+    if (tournamentController.isfinal.value) {
+      tournamentController.finalDone.value = true;
+    }
+    Get.off(() => TournamentMatches(t_id: Constants.t_id),
+        transition: Transition.rightToLeftWithFade,
+        duration: const Duration(milliseconds: 450));
   }
 
   Container GameBox(String box_name, Color color) {

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:tictactoe/models/tournmentModel.dart';
 import 'package:tictactoe/models/tournmentmatchModel.dart';
+import 'package:tictactoe/res/constants/constants.dart';
 import 'package:tictactoe/sql_dbHandler/db_handler.dart';
 import 'package:tictactoe/utils/utils.dart';
 import 'package:tictactoe/views/tournamentmatches/tournamentMatches.dart';
@@ -22,29 +23,8 @@ class TournamentMakerController extends GetxController {
   Future<List<TournmentMatchModel>>? tournamentMatchesdata;
   late List<TournmentModel> latestTournmentData;
   List<String> playerList = [];
-  int this_t_id = 0;
   List<dynamic> winnersList = [];
-
-  Future<void> getTdata() async {
-    tournamentFuture = dbHelper!.getLastTrnmnt();
-    latestTournmentData = await tournamentFuture;
-    // await Future.delayed(const Duration(seconds: 2));
-
-    for (int i = 0; i < resultList.length; i++) {
-      // insertournmentmatchData(resultList[0].toString());
-      if (kDebugMode) {
-        print(resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
-      }
-      insertournmentmatchData(
-          resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
-    }
-    loading.value = false;
-
-    Get.off(() => TournamentMatches(t_id: this_t_id),
-        transition: Transition.rightToLeftWithFade,
-        duration: const Duration(milliseconds: 450));
-    // dbHelper!.getTournmentData();
-  }
+  RxBool quitTournament = false.obs;
 
   final List<String> playerCountList = [
     '3',
@@ -81,6 +61,27 @@ class TournamentMakerController extends GetxController {
       }
     }
     return str;
+  }
+
+  Future<void> getTdata() async {
+    tournamentFuture = dbHelper!.getLastTrnmnt();
+    latestTournmentData = await tournamentFuture;
+    // await Future.delayed(const Duration(seconds: 2));
+
+    for (int i = 0; i < resultList.length; i++) {
+      // insertournmentmatchData(resultList[0].toString());
+      if (kDebugMode) {
+        print(resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
+      }
+      insertournmentmatchData(
+          resultList[i].toString().replaceAll(RegExp(r'[\[\]]'), ''));
+    }
+    loading.value = false;
+
+    Get.to(() => TournamentMatches(t_id: Constants.t_id),
+        transition: Transition.rightToLeftWithFade,
+        duration: const Duration(milliseconds: 450));
+    // dbHelper!.getTournmentData();
   }
 
   String matchNum(int matchNum) {
@@ -129,7 +130,7 @@ class TournamentMakerController extends GetxController {
 
   void insertournmentmatchData(String playerList) {
     TournmentModel data = latestTournmentData.first;
-    this_t_id = data.t_id!;
+    Constants.t_id = data.t_id!;
     dbHelper!
         .insert_tournment_match(TournmentMatchModel(
       matchPlayed: 'false',
@@ -155,13 +156,13 @@ class TournamentMakerController extends GetxController {
     dbHelper!.delete(0).then((value) {
       Utils.toastMessage('Deleted tournment');
     });
-    dbHelper!.deletematch(this_t_id).then((value) {
+    dbHelper!.deletematch(Constants.t_id).then((value) {
       Utils.toastMessage('matches Deleted!');
     });
   }
 
-  void loadMatchesData() {
-    tournamentMatchesdata = dbHelper!.getMatchesData(this_t_id);
+  void loadMatchesData(int t_id) {
+    tournamentMatchesdata = dbHelper!.getMatchesData(t_id);
   }
 
   List<dynamic> eliminationTournament(List<dynamic> inputList) {
@@ -177,6 +178,7 @@ class TournamentMakerController extends GetxController {
       resultList.add([inputList[i], inputList[i + 1]]);
     }
     if (kDebugMode) {
+      print('resultList');
       print(resultList);
     }
     return resultList.isNotEmpty ? resultList : unpairedList;

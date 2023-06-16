@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:tictactoe/res/colors/app_color.dart';
 import 'package:tictactoe/views/gameView/gameView.dart';
+import 'package:tictactoe/views/optionView/optionView.dart';
 import 'package:tictactoe/views/tournamentMaker/tournamentMaker.dart';
 
 import '../../res/constants/constants.dart';
@@ -19,40 +21,46 @@ class _GameModeState extends State<GameMode> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Container(
-          height: Constants.getHeight(context),
-          width: Constants.getWidth(context),
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('Assets/icons/back_2.png'),
-                  fit: BoxFit.fitHeight)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              modeBox(context, 'Single Match', () {
-                Get.off(() => const GameView(),
-                    transition: Transition.rightToLeftWithFade,
-                    duration: const Duration(milliseconds: 450));
-              }),
-              const SizedBox(
-                height: 20,
-              ),
-              modeBox(context, 'Tournament', () {
-                // showMyDialog();
-                Get.off(() => const TournamentMaker(),
-                    transition: Transition.rightToLeftWithFade,
-                    duration: const Duration(milliseconds: 450));
-              }),
-              const SizedBox(
-                height: 20,
-              ),
-              modeBox(context, 'Options', () {
-                // showMyDialog();
-                Get.to(() => const TournamentMaker(),
-                    transition: Transition.rightToLeftWithFade,
-                    duration: const Duration(milliseconds: 450));
-              }),
-            ],
+        body: WillPopScope(
+          onWillPop: () async {
+            SystemNavigator.pop();
+            return true;
+          },
+          child: Container(
+            height: Constants.getHeight(context),
+            width: Constants.getWidth(context),
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('Assets/icons/back_2.png'),
+                    fit: BoxFit.fitHeight)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                modeBox(context, 'Single Match', () {
+                  Get.to(() => const GameView(),
+                      transition: Transition.rightToLeftWithFade,
+                      duration: const Duration(milliseconds: 450));
+                }),
+                const SizedBox(
+                  height: 20,
+                ),
+                modeBox(context, 'Tournament', () {
+                  // showMyDialog();
+                  Get.to(() => const TournamentMaker(),
+                      transition: Transition.rightToLeftWithFade,
+                      duration: const Duration(milliseconds: 450));
+                }),
+                const SizedBox(
+                  height: 20,
+                ),
+                modeBox(context, 'Options', () {
+                  // showMyDialog();
+                  Get.to(() => const OptionView(),
+                      transition: Transition.rightToLeftWithFade,
+                      duration: const Duration(milliseconds: 450));
+                }),
+              ],
+            ),
           ),
         ),
       ),
